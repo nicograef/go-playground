@@ -1,0 +1,19 @@
+version: '3.1'
+
+services:
+
+  db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'nicos-db'
+      MYSQL_ROOT_PASSWORD: freiburg79
+    ports:
+      - 3306:3306
+    expose:
+      - 3306
+    volumes:
+      - nicos-db:/var/lib/mysql
+  
+volumes:
+  nicos-db:
