@@ -12,7 +12,8 @@ type EnqueueRequest struct {
 	Payload any `json:"payload"`
 }
 type EnqueueResponse struct {
-	ID string `json:"id"`
+	MessageId string `json:"messageId"`
+	QueueSize int    `json:"queueSize"`
 }
 
 // read the payload from the request body, create a new message with a new UUID and the current timestamp, add it to the queue, and return the ID of the new message in the response.
@@ -36,7 +37,8 @@ func NewEnqueueHandler(q *queue.Queue) http.HandlerFunc {
 		q.Enqueue(message)
 
 		sendJSONResponse(w, EnqueueResponse{
-			ID: message.ID.String(),
+			MessageId: message.ID.String(),
+			QueueSize: q.Size(),
 		})
 	}
 }
