@@ -1,0 +1,14 @@
+{
+  "messages": [
+    {
+      "id": "fe5f38f3-1067-4c9b-a542-2bf9f16ca08d",
+      "timestamp": "2025-08-24T16:37:20.073730795Z",
+      "payload": "your message here"
+    },
+    {
+      "id": "f041a68c-2eeb-464a-a1bd-cee9f0c8b287",
+      "timestamp": "2025-08-24T16:38:04.709152857Z",
+      "payload": "this is some data"
+    }
+  ]
+}
