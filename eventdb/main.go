@@ -1,0 +1,47 @@
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+
+	"github.com/nicograef/go-playground/eventdb/database"
+)
+
+func main() {
+	server := &http.Server{
+		Addr: ":3000",
+	}
+
+	appQueue, err := database.LoadDatabaseFromJsonFile()
+	if err != nil {
+		fmt.Println("No existing database found, creating a new one.")
+		appQueue = database.New()
+	} else {
+		fmt.Println("Loaded existing database from file.")
+	}
+
+	// Set up signal handling for graceful shutdown
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		<-sigs
+		fmt.Println("Signal received, persisting database...")
+		if err := appQueue.PersistToJsonFile(); err != nil {
+			fmt.Println("Error persisting database:", err)
+		}
+		os.Exit(0)
+	}()
+
+	err = server.ListenAndServe()
+	if err != nil {
+		fmt.Println("Server error:", err)
+		if persistErr := appQueue.PersistToJsonFile(); persistErr != nil {
+			fmt.Println("Error persisting database:", persistErr)
+		}
+		panic(err)
+	}
+}
