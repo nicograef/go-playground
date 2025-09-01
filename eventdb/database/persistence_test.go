@@ -16,9 +16,10 @@ func TestPersistToJsonFile(t *testing.T) {
 	}
 
 	data := User{
+		"ID":   "1",
 		"Name": "John Doe",
 	}
-	db.AddEvent("user.new", data)
+	db.AddEvent("user.new", "1", data)
 
 	if err := db.PersistToJsonFile(); err != nil {
 		t.Fatal("Failed to persist to JSON file:", err)
@@ -26,7 +27,7 @@ func TestPersistToJsonFile(t *testing.T) {
 }
 
 func TestLoadDatabaseFromJsonFile(t *testing.T) {
-	err := os.WriteFile("database.json", []byte(`{"events":{"67099372-1947-4c9d-bc68-423c52d00b76":{"id":"67099372-1947-4c9d-bc68-423c52d00b76","timestamp":"2025-08-31T11:38:51.517259326Z","type":"user.new","data":{"Name":"John Doe"}}}}`), 0644)
+	err := os.WriteFile("database.json", []byte(`{"created":"2025-09-01T17:09:53.684081205Z","events":{"f8ceae97-5a98-473d-a075-c1f0a530da2c":{"id":"f8ceae97-5a98-473d-a075-c1f0a530da2c","timestamp":"2025-09-01T17:09:53.68409515Z","type":"user.new","entity_id":"1","data":{"ID":"1","Name":"John Doe"}}}}`), 0644)
 	if err != nil {
 		t.Fatal("Failed to write database.json:", err)
 	}
@@ -45,7 +46,7 @@ func TestLoadDatabaseFromJsonFile(t *testing.T) {
 		t.Fatal("Failed to load events")
 	}
 
-	id, err := uuid.Parse("67099372-1947-4c9d-bc68-423c52d00b76")
+	id, err := uuid.Parse("f8ceae97-5a98-473d-a075-c1f0a530da2c")
 	if err != nil {
 		t.Fatal("Failed to parse UUID:", err)
 	}
@@ -55,6 +56,7 @@ func TestLoadDatabaseFromJsonFile(t *testing.T) {
 	}
 
 	expectedUser := User{
+		"ID":   "1",
 		"Name": "John Doe",
 	}
 	if !equalUser(event.Data, expectedUser) {
