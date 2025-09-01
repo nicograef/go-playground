@@ -1,6 +1,7 @@
 package database
 
 import (
+	"maps"
 	"sort"
 	"time"
 
@@ -43,6 +44,23 @@ func (db *Database) AddEvent(eventType string, entityID string, data map[string]
 	db.events[event.ID] = event
 	db.typeIndex[eventType] = append(db.typeIndex[eventType], event.ID)
 	db.entityIndex[entityID] = append(db.entityIndex[entityID], event.ID)
+}
+
+func (db *Database) DeleteEvent(id uuid.UUID) {
+	if event, exists := db.events[id]; exists {
+		delete(db.events, id)
+		db.typeIndex[event.Type] = removeIDFromSlice(db.typeIndex[event.Type], id)
+		db.entityIndex[event.EntityID] = removeIDFromSlice(db.entityIndex[event.EntityID], id)
+	}
+}
+
+func (db *Database) DeleteEntity(entityID string) {
+	if eventIDs, exists := db.entityIndex[entityID]; exists {
+		for _, id := range eventIDs {
+			delete(db.events, id)
+		}
+		delete(db.entityIndex, entityID)
+	}
 }
 
 func (db *Database) GetEvents() []Event {
@@ -113,10 +131,18 @@ func (db *Database) GetEntity(entityID string) map[string]any {
 	aggregate := make(map[string]any)
 
 	for _, event := range events {
-		for k, v := range event.Data {
-			aggregate[k] = v
-		}
+		maps.Copy(aggregate, event.Data)
 	}
 
 	return aggregate
+}
+
+func removeIDFromSlice(slice []uuid.UUID, id uuid.UUID) []uuid.UUID {
+	result := make([]uuid.UUID, 0, len(slice))
+	for _, v := range slice {
+		if v != id {
+			result = append(result, v)
+		}
+	}
+	return result
 }

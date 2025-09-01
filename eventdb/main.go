@@ -12,13 +12,13 @@ import (
 
 func main() {
 	server := &http.Server{
-		Addr: ":3000",
+		Addr: ":5000",
 	}
 
-	appQueue, err := database.LoadDatabaseFromJsonFile()
+	appDatabase, err := database.LoadDatabaseFromJsonFile()
 	if err != nil {
 		fmt.Println("No existing database found, creating a new one.")
-		appQueue = database.New()
+		appDatabase = database.New()
 	} else {
 		fmt.Println("Loaded existing database from file.")
 	}
@@ -30,7 +30,7 @@ func main() {
 	go func() {
 		<-sigs
 		fmt.Println("Signal received, persisting database...")
-		if err := appQueue.PersistToJsonFile(); err != nil {
+		if err := appDatabase.PersistToJsonFile(); err != nil {
 			fmt.Println("Error persisting database:", err)
 		}
 		os.Exit(0)
@@ -39,7 +39,7 @@ func main() {
 	err = server.ListenAndServe()
 	if err != nil {
 		fmt.Println("Server error:", err)
-		if persistErr := appQueue.PersistToJsonFile(); persistErr != nil {
+		if persistErr := appDatabase.PersistToJsonFile(); persistErr != nil {
 			fmt.Println("Error persisting database:", persistErr)
 		}
 		panic(err)
