@@ -15,11 +15,7 @@ func TestPersistToJsonFile(t *testing.T) {
 		t.Fatal("Failed to create database")
 	}
 
-	data := User{
-		"ID":   "1",
-		"Name": "John Doe",
-	}
-	db.AddEvent("user.new", "1", data)
+	db.AddEvent("user.new", "1", user{"ID": "1", "Name": "John Doe"})
 
 	if err := db.PersistToJsonFile(); err != nil {
 		t.Fatal("Failed to persist to JSON file:", err)
@@ -50,16 +46,12 @@ func TestLoadDatabaseFromJsonFile(t *testing.T) {
 	if err != nil {
 		t.Fatal("Failed to parse UUID:", err)
 	}
-	event := db.GetEventByID(id)
+	event := db.GetEvent(id)
 	if event == nil {
 		t.Fatal("Failed to get event by ID")
 	}
 
-	expectedUser := User{
-		"ID":   "1",
-		"Name": "John Doe",
-	}
-	if !equalUser(event.Data, expectedUser) {
+	if !equalUser(event.Data, user{"ID": "1", "Name": "John Doe"}) {
 		t.Fatal("Event data is not the same as the one created")
 	}
 }
